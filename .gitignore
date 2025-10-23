@@ -1,0 +1,5 @@
+.DS_Store
+.simvision/
+sim/waves.shm/
+sim/xcelium.d/
+sim/xrun.*
