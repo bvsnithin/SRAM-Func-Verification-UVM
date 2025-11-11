@@ -3,14 +3,17 @@
 +incdir+../tb/env
 +incdir+../tb/sequences
 +incdir+../tb/tests
++incdir+../rtl
 
-../design/rtl
+../rtl/ahb_slave_if.sv
+../rtl/sram_model.sv
+../rtl/sram_ctrl.sv
 
-../tb/interfaces/dut_if.sv
+../tb/interfaces/ahb_if.sv
 
-../tb/agents/agent_pkg.sv
-../tb/env/env_pkg.sv
-../tb/sequences/seq_pkg.sv
+../tb/agents/ahb_agents_pkg.sv
+../tb/sequences/ahb_seq_pkg.sv
+../tb/env/sram_env_pkg.sv
 ../tb/tests/test_pkg.sv
 
-../tb/tb_top.sv
+../tb/top.sv

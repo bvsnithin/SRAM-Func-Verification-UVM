@@ -1,6 +1,11 @@
 /* -----------------------------------------------------------------------------------------
  File: sram_macros.svh
- Description: This file stores the macros used in the testbench
+ Description: This file defines the macros used in the project.
+ 
+ Macros are like "shorthand" or "shortcuts" for common pieces of code. 
+ Instead of typing out a long logging message every time, we can use 
+ a simple macro (like AHB_LOG) to do the work for us. This makes the 
+ code cleaner and easier to read.
  ----------------------------------------------------------------------------------------- */
 
  `ifndef SRAM_MACROS_SVH
