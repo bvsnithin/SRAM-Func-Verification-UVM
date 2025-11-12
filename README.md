@@ -58,7 +58,7 @@ flowchart LR
 
     A[AHB Bus Slave Interface]
 
-    subgraph """
+    subgraph SRAM
         direction TB
         
         subgraph Bank0
@@ -78,7 +78,7 @@ flowchart LR
         end
     end
 
-    A <--> SRAM_Controller
+    A <--> SRAM
 ```
 
 **Explanation of the Diagram:**
