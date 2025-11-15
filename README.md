@@ -87,4 +87,16 @@ flowchart LR
 * Banks and sub-blocks are selected based on address and transfer width, enabling low-power operation.
 
 
+## How to Run the Simulation
+
+I have used Cadence's Xcelium simulator to run the simulation.
+
+Use the following commands to run the UVM testcases:
+1) xrun -f run.f +UVM_TESTNAME=addr0_test
+2) xrun -f run.f +UVM_TESTNAME=addr1_test
+3) xrun -f run.f +UVM_TESTNAME=hsize_test
+4) xrun -f run.f +UVM_TESTNAME=low_power_test
+5) xrun -f run.f +UVM_TESTNAME=base_test
+
+
 
