@@ -9,6 +9,8 @@ The design prioritizes low power operation by dividing the SRAM into two banks, 
 
 AHB (Advanced High-performance Bus) is a part of the AMBA (Advanced Microcontroller Bus Architecture) specification used in ARM-based systems. It is a high-speed bus protocol designed for communication between masters (like CPUs or DMA controllers) and slaves (like SRAM, ROM, or peripherals).
 
+![AHB](ahb.png)
+
 **Key Features of AHB:**
 * High-performance, pipelined bus transfers.
 * Supports multiple data widths: 8, 16, 32 bits.
