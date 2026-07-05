@@ -4,27 +4,10 @@ class ahb_monitor extends uvm_monitor;
         
     virtual ahb_if vif;
     uvm_analysis_port #(ahb_transaction) item_collected_port;
-    ahb_transaction tr_cov;
-
-    covergroup ahb_cov;
-        option.per_instance = 1;
-        cp_addr: coverpoint tr_cov.haddr[15:0] {
-            bins bank0 = {[16'h0000:16'h7FFF]};
-            bins bank1 = {[16'h8000:16'hFFFF]};
-        }
-        cp_size: coverpoint tr_cov.hsize {
-            bins b8  = {3'b000};
-            bins b16 = {3'b001};
-            bins b32 = {3'b010};
-        }
-        cp_write: coverpoint tr_cov.hwrite;
-        cross cp_addr, cp_size, cp_write;
-    endgroup
 
     function new(string name, uvm_component parent);
         super.new(name, parent);
         item_collected_port = new("item_collected_port", this);
-        ahb_cov = new();
     endfunction
 
     virtual function void build_phase(uvm_phase phase);
@@ -69,10 +52,7 @@ class ahb_monitor extends uvm_monitor;
             tr.hrdata = vif.cb.hrdata;
             `AHB_LOG("MON_READ", "Collected Read", tr.haddr, tr.hrdata)
         end
-        
-        // Sample coverage
-        tr_cov = tr;
-        ahb_cov.sample();
+
         
         // Low Power Log (Bank sel check)
         `LP_CHECK((vif.cb.bank_sel == 2'b10 ? 1 : 0), vif.cb.sram_en)

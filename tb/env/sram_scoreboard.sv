@@ -11,14 +11,14 @@
 class sram_scoreboard extends uvm_scoreboard;
     `uvm_component_utils(sram_scoreboard)
 
-    uvm_analysis_imp #(ahb_transaction, sram_scoreboard) item_collected_export;
+    uvm_analysis_imp #(ahb_transaction, sram_scoreboard) item_collected_imp;
     
     // Internal Memory Model for Checking
     logic [7:0] ref_mem [0:65535];
 
     function new(string name, uvm_component parent);
         super.new(name, parent);
-        item_collected_export = new("item_collected_export", this);
+        item_collected_imp = new("item_collected_imp", this);
         foreach (ref_mem[i]) ref_mem[i] = 8'h00;
     endfunction
 

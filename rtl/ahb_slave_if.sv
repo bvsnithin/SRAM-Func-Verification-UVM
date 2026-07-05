@@ -40,6 +40,9 @@ module ahb_slave_if(
     localparam NONSEQ = 2'b10;
     localparam SEQ    = 2'b11;
 
+    //I want to use typedef instead
+    // typedef enum logic[1:0] {IDLE, BUSY, NONSEQ, SEQ} state_t;
+
     always @(posedge hclk or negedge hresetn) begin
         if (!hresetn) begin
             addr_reg   <= 16'h0;

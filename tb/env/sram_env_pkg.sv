@@ -14,6 +14,7 @@ package sram_env_pkg;
     import ahb_agents_pkg::*;
 
     `include "sram_scoreboard.sv"
+    `include "ahb_sram_coverage.sv"
     `include "sram_env.sv"
 
 endpackage

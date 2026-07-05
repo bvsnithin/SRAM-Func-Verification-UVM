@@ -37,4 +37,78 @@ interface ahb_if(input logic hclk, input logic hresetn);
         input  hrdata, bank_sel, sram_en;
     endclocking
 
+    // :::::::::::: AHB Protocol Assertions ::::::::::::
+    property hresp_always_okay;
+        @(posedge hclk)
+        disable iff(!hresetn)
+        hresp == 2'b00;
+    endproperty
+
+    property hreadyout_always_high;
+        @(posedge hclk)
+        disable iff(!hresetn)
+        hready == 1'b1;
+    endproperty
+
+    // When a 16-bit transfer is active (hsize == 3'b001), the address must be half-word aligned
+    property aligned_16bit_addr;
+        @(posedge hclk)
+        disable iff(!hresetn)
+        (hsel && htrans[1] && hsize == 3'b001) |-> (haddr[0] == 1'b0);
+    endproperty
+
+    // When a 32-bit transfer is active (hsize == 3'b010), the address must be 32 bit algined
+    property aligned_32bit_addr;
+        @(posedge hclk)
+        disable iff(!hresetn)
+        (hsel && htrans[1] && hsize == 3'b010) |-> (haddr[1:0] == 2'b00);
+    endproperty
+
+    property valid_htrans;
+        @(posedge hclk)
+        disable iff(!hresetn)
+        htrans inside {2'b00, 2'b10};
+    endproperty
+
+    assert_hresp:           assert property(hresp_always_okay)
+                            else $error("ASSERT FAIL: hresp is not OKAY");
+
+    assert_hready:          assert property (hreadyout_always_high)
+                            else $error("ASSERT FAIL: hreadyout is not high");
+
+    assert_align16:         assert property (aligned_16bit_addr)
+                            else $error("ASSERT FAIL: 16-bit address misaligned");
+
+    assert_align32:         assert property (aligned_32bit_addr)
+                            else $error("ASSERT FAIL: 32-bit address misaligned");
+
+    assert_valid_htrans:    assert property (valid_htrans)
+                            else $error("ASSERT FAIL: invalid htrans value");
+
+    // :::::::::::: SRAM Controller Assertions :::::::::::::::
+    property bank0_sel_when_addr15_low;
+    endproperty
+
+    property bank1_sel_when_addr15_high;
+    endproperty
+
+    property no_bank_when_idle;
+    endproperty
+
+    property byte_lane_8bit;
+    endproperty
+
+    property byte_lane_16bit;
+    endproperty
+
+    property byte_lane_32bit;
+    endproperty
+
+    property no_write_during_reset;
+    endproperty
+
+    property read_after_write;
+    endproperty
+
+
 endinterface
