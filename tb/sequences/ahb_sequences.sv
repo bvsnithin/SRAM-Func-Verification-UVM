@@ -74,3 +74,145 @@ class sequence_hsize extends ahb_base_seq;
         end
     endtask
 endclass
+
+// Exercises 8/16/32-bit writes and reads at the same address
+class seq_all_sizes extends ahb_base_seq;
+    `uvm_object_utils(seq_all_sizes)
+
+    function new(string name = "seq_all_sizes");
+        super.new(name);
+    endfunction: new
+
+    virtual task body();
+        bit [31:0] test_addr = 32'h0000;
+        // 8-bit R/W
+        `uvm_do_with(req, {req.haddr == test_addr; req.hwrite == 1'b1; req.hsize == 3'b000; req.hwrdata == 32'hA5;})
+        `uvm_do_with(req, {req.haddr == test_addr; req.hwrite == 1'b0; req.hsize == 3'b000;})
+        // 16-bit R/W
+        `uvm_do_with(req, {req.haddr == test_addr; req.hwrite == 1'b1; req.hsize == 3'b001; req.hwrdata == 32'h5A5A;})
+        `uvm_do_with(req, {req.haddr == test_addr; req.hwrite == 1'b0; req.hsize == 3'b001;})
+        // 32-bit R/W
+        `uvm_do_with(req, {req.haddr == test_addr; req.hwrite == 1'b1; req.hsize == 3'b010; req.hwrdata == 32'h12345678;})
+        `uvm_do_with(req, {req.haddr == test_addr; req.hwrite == 1'b0; req.hsize == 3'b010;})
+    endtask 
+endclass: seq_all_sizes
+
+// Targets addresses at bank boundaries (0x7FFC, 0x8000)
+class seq_bank_boundary extends ahb_base_seq;
+    `uvm_object_utils(seq_bank_boundary)
+
+    function new(string name = "seq_bank_boundary");
+        super.new(name);
+    endfunction: new
+
+    virtual task body();
+        // R/W at Bank 0 end boundary (0x7FFC)
+        `uvm_do_with(req, {req.haddr == 32'h7FFC; req.hwrite == 1'b1; req.hsize == 3'b010; req.hwrdata == 32'hDEADBEEF;})
+        `uvm_do_with(req, {req.haddr == 32'h7FFC; req.hwrite == 1'b0; req.hsize == 3'b010;})
+        // R/W at Bank 1 start boundary (0x8000)
+        `uvm_do_with(req, {req.haddr == 32'h8000; req.hwrite == 1'b1; req.hsize == 3'b010; req.hwrdata == 32'hCAFEBABE;})
+        `uvm_do_with(req, {req.haddr == 32'h8000; req.hwrite == 1'b0; req.hsize == 3'b010;})
+    endtask 
+
+endclass: seq_bank_boundary
+
+// Walking-1 and walking-0 data patterns
+class seq_walking_data extends ahb_base_seq;
+    `uvm_object_utils(seq_walking_data)
+
+    function new(string name = "seq_walking_data");
+        super.new(name);
+    endfunction: new
+
+    virtual task body();
+        bit [31:0] data;
+        // Walking 1s
+        for (int i = 0; i < 32; i++) begin
+            data = 32'h1 << i;
+            `uvm_do_with(req, {req.haddr == 32'h1000; req.hwrite == 1'b1; req.hsize == 3'b010; req.hwrdata == data;})
+            `uvm_do_with(req, {req.haddr == 32'h1000; req.hwrite == 1'b0; req.hsize == 3'b010;})
+        end
+        // Walking 0s
+        for (int i = 0; i < 32; i++) begin
+            data = ~(32'h1 << i);
+            `uvm_do_with(req, {req.haddr == 32'h1000; req.hwrite == 1'b1; req.hsize == 3'b010; req.hwrdata == data;})
+            `uvm_do_with(req, {req.haddr == 32'h1000; req.hwrite == 1'b0; req.hsize == 3'b010;})
+        end
+    endtask 
+
+endclass: seq_walking_data
+
+// Rapid consecutive operations without idle gaps
+class seq_back_to_back extends ahb_base_seq;
+    `uvm_object_utils(seq_back_to_back)
+
+    function new(string name = "seq_back_to_back");
+        super.new(name);
+    endfunction: new
+
+    virtual task body();
+        repeat(50) begin
+            `uvm_do(req)
+        end
+    endtask 
+
+endclass: seq_back_to_back
+
+// 8-bit access at offsets 0, 1, 2, 3 within a word
+class seq_all_byte_offsets extends ahb_base_seq;
+    `uvm_object_utils(seq_all_byte_offsets)
+
+    function new(string name = "seq_all_byte_offsets");
+        super.new(name);
+    endfunction: new
+
+    virtual task body();
+        // Write to offset 0, 1, 2, 3
+        `uvm_do_with(req, {req.haddr == 32'h2000; req.hwrite == 1'b1; req.hsize == 3'b000; req.hwrdata == 32'h11;})
+        `uvm_do_with(req, {req.haddr == 32'h2001; req.hwrite == 1'b1; req.hsize == 3'b000; req.hwrdata == 32'h22;})
+        `uvm_do_with(req, {req.haddr == 32'h2002; req.hwrite == 1'b1; req.hsize == 3'b000; req.hwrdata == 32'h33;})
+        `uvm_do_with(req, {req.haddr == 32'h2003; req.hwrite == 1'b1; req.hsize == 3'b000; req.hwrdata == 32'h44;})
+        // Read them back
+        `uvm_do_with(req, {req.haddr == 32'h2000; req.hwrite == 1'b0; req.hsize == 3'b000;})
+        `uvm_do_with(req, {req.haddr == 32'h2001; req.hwrite == 1'b0; req.hsize == 3'b000;})
+        `uvm_do_with(req, {req.haddr == 32'h2002; req.hwrite == 1'b0; req.hsize == 3'b000;})
+        `uvm_do_with(req, {req.haddr == 32'h2003; req.hwrite == 1'b0; req.hsize == 3'b000;})
+    endtask
+endclass: seq_all_byte_offsets
+
+// Attempts writes during reset to verify they're ignored
+class seq_reset_write extends ahb_base_seq; 
+    `uvm_object_utils(seq_reset_write)
+
+    function new(string name = "seq_reset_write");
+        super.new(name);
+    endfunction: new
+
+    virtual task body();
+        // Force reset low (active) hierachically to simulate reset assertion
+        force top.hresetn = 1'b0;
+        // Attempt a write during reset
+        `uvm_do_with(req, {req.haddr == 32'h4000; req.hwrite == 1'b1; req.hsize == 3'b010; req.hwrdata == 32'hBAADF00D;})
+        #10;
+        // Release reset force and assert active-high resetn
+        force top.hresetn = 1'b1;
+        release top.hresetn;
+        // Drive a read to confirm it was NOT written (should return 0 or old data)
+        `uvm_do_with(req, {req.haddr == 32'h4000; req.hwrite == 1'b0; req.hsize == 3'b010;})
+    endtask 
+endclass: seq_reset_write
+
+// Large number (500+) of fully random operations
+class seq_stress_random extends ahb_base_seq;
+    `uvm_object_utils(seq_stress_random)
+
+    function new(string name = "seq_stress_random");
+        super.new(name);
+    endfunction: new
+
+    virtual task body();
+        repeat(500) begin
+            `uvm_do(req)
+        end
+    endtask 
+endclass: seq_stress_random
