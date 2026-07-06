@@ -91,14 +91,51 @@ flowchart LR
 
 ## How to Run the Simulation
 
-I have used Cadence's Xcelium simulator to run the simulation.
+The simulation environment supports automated regression using a **Makefile** and a **Python Orchestrator script**.
 
-Use the following commands to run the UVM testcases:
-1) xrun -f run.f +UVM_TESTNAME=addr0_test
-2) xrun -f run.f +UVM_TESTNAME=addr1_test
-3) xrun -f run.f +UVM_TESTNAME=hsize_test
-4) xrun -f run.f +UVM_TESTNAME=low_power_test
-5) xrun -f run.f +UVM_TESTNAME=base_test
+First, initialize the Cadence environment:
+```bash
+source setupX.bash
+cd sim
+```
 
+### Option 1: Automated Python Orchestration (Recommended)
+This Python script handles pre-compilation check, loop-runs all tests, scans simulator log files for UVM errors/warnings, prints a summary report, and merges code/functional coverage databases.
 
+* **Run the complete regression suite (clean compile + runs all tests + merges coverage):**
+  ```bash
+  chmod +x regression.py
+  ./regression.py --clean
+  ```
+* **Run a single test case with coverage collection:**
+  ```bash
+  ./regression.py --test addr0_test
+  ```
 
+### Option 2: Direct Makefile Commands
+If you prefer running targets directly via Make:
+
+* **Compile the testbench snapshot:**
+  ```bash
+  make compile
+  ```
+* **Run a specific testcase:**
+  ```bash
+  make run TEST=addr0_test
+  ```
+* **Clean up the simulation workspace:**
+  ```bash
+  make clean
+  ```
+* **Merge coverage databases manually:**
+  ```bash
+  make merge_cov
+  ```
+
+---
+
+## Viewing Coverage Reports
+Once the regression finishes successfully, coverage databases are merged. You can view the code and functional coverage reports interactively using Cadence IMC:
+```bash
+imc -load merged_cov
+```

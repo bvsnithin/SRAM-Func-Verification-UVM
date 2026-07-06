@@ -31,7 +31,10 @@
     end
 
     // 2. Instantiate the Physical Interface
-    ahb_if p_if(hclk, hresetn);
+    // We combine the top hresetn and the interface-driven reset_trigger
+    // If reset_trigger is high, we pull actual_resetn low (active low reset)
+    wire actual_resetn = p_if.reset_trigger ? 1'b0 : hresetn;
+    ahb_if p_if(hclk, actual_resetn);
 
     // 3. Instantiate the DUT (RTL)
     sram_ctrl dut (

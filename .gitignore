@@ -4,3 +4,7 @@ sim/waves.shm/
 sim/xcelium.d/
 sim/xrun.*
 *.log
+*.history
+venv
+*.key
+.nfs*

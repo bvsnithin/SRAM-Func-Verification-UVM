@@ -39,13 +39,14 @@ class ahb_sram_coverage extends uvm_subscriber#(ahb_transaction);
         cross cp_hsize, cp_byte_offset;
     endgroup
 
-    function new(string name="", uvm_component parent);
+    function new(string name, uvm_component parent);
         super.new(name, parent);
         cg_sram_bank = new();
     endfunction: new
 
-    virtual function void write(ahb_transaction tr);
-        ahb_tr_cov = tr;
+    //The signature of write in uvm_subscriber should match in it's child. So the signate is uvm_subscriber::write(T t), since the parameter name should be "t"
+    virtual function void write(ahb_transaction t);
+        ahb_tr_cov = t;
         cg_sram_bank.sample();
     endfunction: write
 

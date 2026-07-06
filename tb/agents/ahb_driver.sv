@@ -24,12 +24,8 @@ class ahb_driver extends uvm_driver #(ahb_transaction);
     endfunction
 
     virtual task run_phase(uvm_phase phase);
-        // Wait for reset to deassert before driving any bus transactions.
-        // hresetn is active-low: it goes 0 → 1 at t=20ns in top.sv.
-        // Without this wait, the first transaction fires at ~t=15ns (still in
-        // reset), so sram_model's `if (hresetn && en)` guard silently drops
-        // the write, causing the addr-0 scoreboard mismatch.
-        @(posedge vif.hresetn);
+        // Wait for initial power-on reset to deassert before driving any bus transactions.
+        wait(vif.hresetn === 1'b1);
         @(vif.cb); // one settling cycle after reset
         forever begin
             seq_item_port.get_next_item(req);

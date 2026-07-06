@@ -189,14 +189,23 @@ class seq_reset_write extends ahb_base_seq;
     endfunction: new
 
     virtual task body();
-        // Force reset low (active) hierachically to simulate reset assertion
-        force top.hresetn = 1'b0;
+        virtual ahb_if vif;
+        if (!uvm_config_db#(virtual ahb_if)::get(null, "", "vif", vif)) begin
+            `uvm_fatal("NO_VIF", "Virtual interface not found in seq_reset_write")
+        end
+
+        // Wait for initial startup reset to deassert first
+        wait(vif.hresetn === 1'b1);
+        #10;
+
+        // Assert reset by setting reset_trigger in interface
+        vif.reset_trigger = 1'b1;
         // Attempt a write during reset
         `uvm_do_with(req, {req.haddr == 32'h4000; req.hwrite == 1'b1; req.hsize == 3'b010; req.hwrdata == 32'hBAADF00D;})
+        #20;
+        // Deassert reset
+        vif.reset_trigger = 1'b0;
         #10;
-        // Release reset force and assert active-high resetn
-        force top.hresetn = 1'b1;
-        release top.hresetn;
         // Drive a read to confirm it was NOT written (should return 0 or old data)
         `uvm_do_with(req, {req.haddr == 32'h4000; req.hwrite == 1'b0; req.hsize == 3'b010;})
     endtask 

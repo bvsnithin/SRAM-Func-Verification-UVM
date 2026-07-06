@@ -25,6 +25,8 @@ interface ahb_if(input logic hclk, input logic hresetn);
     logic [1:0]  bank_sel;     // Which bank is active (0 or 1)
     logic [3:0]  sram_en;      // Which of the 4 SRAMs in a bank are active
   
+    logic        reset_trigger = 1'b0; // Verification-driven reset trigger
+  
     // Clocking block for synchronous driving/sampling.
     // DRIVER outputs: TB drives these TO the DUT.
     // MONITOR inputs: DUT drives these back TO the TB.
